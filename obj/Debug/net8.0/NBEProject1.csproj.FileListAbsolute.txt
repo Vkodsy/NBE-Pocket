@@ -1,0 +1,9 @@
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.csproj.AssemblyReference.cache
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.AssemblyInfoInputs.cache
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.AssemblyInfo.cs
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.csproj.CoreCompileInputs.cache
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\himal\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.sourcelink.json

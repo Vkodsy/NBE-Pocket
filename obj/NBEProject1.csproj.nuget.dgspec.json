@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jojito\\source\\repos\\NBEProject1\\NBEProject1.csproj": {}
+    "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jojito\\source\\repos\\NBEProject1\\NBEProject1.csproj": {
+    "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jojito\\source\\repos\\NBEProject1\\NBEProject1.csproj",
+        "projectUniqueName": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
         "projectName": "NBEProject1",
-        "projectPath": "C:\\Users\\Jojito\\source\\repos\\NBEProject1\\NBEProject1.csproj",
-        "packagesPath": "C:\\Users\\Jojito\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jojito\\source\\repos\\NBEProject1\\obj\\",
+        "projectPath": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
+        "packagesPath": "C:\\Users\\himal\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Jojito\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\himal\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -91,7 +91,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

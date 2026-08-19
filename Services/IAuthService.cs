@@ -1,6 +1,8 @@
-﻿namespace NBEProject1.Services
+﻿using NBEProject1.DTOs.Auth;
+using UserAuthApi.DTOs.Auth;
+namespace UserAuthApi.Services;
+public interface IAuthService
 {
-    public class IAuthService
-    {
-    }
+    Task<UserResponse> RegisterAsync(RegisterRequest request);
+    Task<AuthResponse?> LoginAsync(LoginRequest request);
 }
