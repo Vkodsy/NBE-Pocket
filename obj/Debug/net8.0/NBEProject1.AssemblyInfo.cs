@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NBEProject1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+60cfba2ed5be864e2f4660422ca5389a6584f17d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6701ed7bc1a91dc5d9ee9b4c2806921d337c7fcc")]
 [assembly: System.Reflection.AssemblyProductAttribute("NBEProject1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NBEProject1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
