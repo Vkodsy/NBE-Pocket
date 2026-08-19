@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using System;
+using UserAuthApi.Data
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +19,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Database
+// -------------------------------------------------
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "DefaultConnection is not configured.");
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
+// ------------------------------------------------
 
 app.UseHttpsRedirection();
 
