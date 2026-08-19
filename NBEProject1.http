@@ -1,0 +1,6 @@
+@NBEProject1_HostAddress = http://localhost:5152
+
+GET {{NBEProject1_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
