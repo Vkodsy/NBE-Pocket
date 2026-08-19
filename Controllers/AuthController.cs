@@ -8,59 +8,42 @@ namespace UserAuthApi.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly AuthService _authService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(AuthService authService)
     {
         _authService = authService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(
-        [FromBody] RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
-            var user = await _authService.RegisterAsync(request);
-
-            return StatusCode(
-                StatusCodes.Status201Created,
-                new
-                {
-                    message = "Registration successful.",
-                    user
-                });
+            var response = await _authService.RegisterAsync(request);
+            return Ok(response);
         }
-        catch (DuplicateEmailException)
+        catch (InvalidOperationException ex)
         {
-            return BadRequest(new
-            {
-                message = "The registration could not be completed."
-            });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
+            return BadRequest(new { message = ex.Message });
         }
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(
-        [FromBody] LoginRequest request)
+    [HttpGet("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromQuery] string email, [FromQuery] string token)
     {
-        var result = await _authService.LoginAsync(request);
-
-        if (result is null)
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
         {
-            return Unauthorized(new
-            {
-                message = "Invalid email or password."
-            });
+            return BadRequest(new { message = "Email and verification token are required." });
         }
 
-        return Ok(result);
+        var isVerified = await _authService.VerifyEmailAsync(email, token);
+
+        if (!isVerified)
+        {
+            return BadRequest(new { message = "Invalid or expired confirmation link." });
+        }
+
+        return Ok(new { message = "Your email has been verified successfully! You can now log in." });
     }
 }

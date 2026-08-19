@@ -1,140 +1,103 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using NBEProject1.DTOs.Auth;
+﻿using NBEProject1.Repositories;
 using NBEProject1.Services;
-using System;
-using UserAuthApi.Data;
+using System.Security.Cryptography;
 using UserAuthApi.DTOs.Auth;
 using UserAuthApi.Models;
 
 namespace UserAuthApi.Services;
 
-public class AuthService : IAuthService
+
+public class AuthService
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService;
+    private readonly IPasswordHasher _passwordHasher;
 
     public AuthService(
-        AppDbContext dbContext,
-        IPasswordHasher<User> passwordHasher,
-        IJwtTokenService jwtTokenService)
+        IUserRepository userRepository,
+        IEmailService emailService,
+        IPasswordHasher passwordHasher)
     {
-        _dbContext = dbContext;
+        _userRepository = userRepository;
+        _emailService = emailService;
         _passwordHasher = passwordHasher;
-        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<UserResponse> RegisterAsync(RegisterRequest request)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
-        var email = NormalizeEmail(request.Email);
+        var normalizedEmail = request.Email.ToUpperInvariant();
 
-        if (!string.Equals(
-                request.Password,
-                request.ConfirmPassword,
-                StringComparison.Ordinal))
+        var existingUser = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
+        if (existingUser != null)
         {
-            throw new ArgumentException(
-                "Password and confirm password must match.");
+            throw new InvalidOperationException("User with this email already exists.");
         }
 
-        var existingUser = await _dbContext.Users
-            .AsNoTracking()
-            .AnyAsync(u => u.Email == email);
-
-        if (existingUser)
-        {
-            throw new DuplicateEmailException();
-        }
+        var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        var tokenHash = _passwordHasher.HashToken(rawToken);
 
         var user = new User
         {
             Id = Guid.NewGuid(),
-            FirstName = request.FirstName.Trim(),
-            LastName = request.LastName.Trim(),
-            Email = email,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            NormalizedEmail = normalizedEmail,
+            PasswordHash = _passwordHasher.HashPassword(request.Password),
+            EmailConfirmed = false,
+            EmailConfirmationTokenHash = tokenHash,
+            EmailConfirmationExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
 
-        user.PasswordHash = _passwordHasher.HashPassword(
-            user,
-            request.Password);
+        await _userRepository.AddAsync(user);
 
-        _dbContext.Users.Add(user);
+        var confirmationLink = $"https://localhost:7085/api/Auth/verify-email?email={Uri.EscapeDataString(user.Email)}&token={rawToken}";
+
+        Console.WriteLine("\n=======================================================");
+        Console.WriteLine($"VERIFICATION LINK: {confirmationLink}");
+        Console.WriteLine($"RAW TOKEN: {rawToken}");
+        Console.WriteLine("=======================================================\n");
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _emailService.SendConfirmationEmailAsync(user.Email, confirmationLink);
         }
-        catch (DbUpdateException ex)
-            when (ex.InnerException?.Message.Contains(
-                "UX_Users_Email",
-                StringComparison.OrdinalIgnoreCase) == true)
+        catch (Exception ex)
         {
-            throw new DuplicateEmailException();
+            Console.WriteLine($"[SMTP Email Error]: {ex.Message}");
         }
 
-        return MapUser(user);
-    }
-
-    public async Task<AuthResponse?> LoginAsync(LoginRequest request)
-    {
-        var email = NormalizeEmail(request.Email);
-
-        var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
-
-        if (user is null)
-        {
-            return null;
-        }
-
-        var verificationResult = _passwordHasher.VerifyHashedPassword(
-            user,
-            user.PasswordHash,
-            request.Password);
-
-        if (verificationResult == PasswordVerificationResult.Failed)
-        {
-            return null;
-        }
-
-        if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
-        {
-            user.PasswordHash = _passwordHasher.HashPassword(
-                user,
-                request.Password);
-
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _dbContext.SaveChangesAsync();
-        }
-
-        var (token, expiresAt) = _jwtTokenService.GenerateToken(user);
-
+        // MAKE SURE THIS RETURN STATEMENT IS AT THE END OUTSIDE OF ANY TRY/IF BLOCKS:
         return new AuthResponse
         {
-            Message = "Login successful",
-            Token = token,
-            ExpiresAt = expiresAt,
-            User = MapUser(user)
+            Message = "Registration successful. Please check your email to verify your account."
         };
     }
 
-    private static string NormalizeEmail(string email)
+    public async Task<bool> VerifyEmailAsync(string email, string token)
     {
-        return email.Trim().ToLowerInvariant();
-    }
+        var normalizedEmail = email.ToUpperInvariant();
+        var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
 
-    private static UserResponse MapUser(User user)
-    {
-        return new UserResponse
+        if (user == null) return false;
+        if (user.EmailConfirmed) return true;
+        if (user.EmailConfirmationExpiresAt == null || user.EmailConfirmationExpiresAt < DateTimeOffset.UtcNow) return false;
+
+        var incomingHash = _passwordHasher.HashToken(token);
+        if (!string.Equals(user.EmailConfirmationTokenHash, incomingHash, StringComparison.OrdinalIgnoreCase))
         {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email
-        };
+            return false;
+        }
+
+        user.EmailConfirmed = true;
+        user.EmailConfirmationTokenHash = null;
+        user.EmailConfirmationExpiresAt = null;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+        return true;
     }
+
 }

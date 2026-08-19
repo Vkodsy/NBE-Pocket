@@ -14,6 +14,12 @@ public sealed class User
 
     public string PasswordHash { get; set; } = string.Empty;
 
+    public bool EmailConfirmed { get; set; } = false;
+
+    public string? EmailConfirmationTokenHash { get; set; }
+
+    public DateTimeOffset? EmailConfirmationExpiresAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; }

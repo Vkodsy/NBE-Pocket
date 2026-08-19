@@ -43,6 +43,19 @@ public sealed class ApplicationDbContext(
                 .HasMaxLength(500)
                 .IsRequired();
 
+            // Email verification configurations
+            entity.Property(x => x.EmailConfirmed)
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            entity.Property(x => x.EmailConfirmationTokenHash)
+                .HasMaxLength(256)
+                .IsRequired(false);
+
+            entity.Property(x => x.EmailConfirmationExpiresAt)
+                .HasColumnType("datetimeoffset(7)")
+                .IsRequired(false);
+
             entity.Property(x => x.CreatedAt)
                 .HasColumnType("datetimeoffset(7)")
                 .IsRequired();
