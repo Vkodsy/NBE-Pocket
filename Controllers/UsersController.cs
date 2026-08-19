@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
 using UserAuthApi.Data;
-using UserAuthApi.DTOs.Users;
+using NBEProject1.DTOs.Auth;
 
 namespace UserAuthApi.Controllers;
 
@@ -13,9 +13,9 @@ namespace UserAuthApi.Controllers;
 [Authorize]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
 
-    public UsersController(AppDbContext dbContext)
+    public UsersController(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -45,7 +45,7 @@ public class UsersController : ControllerBase
             });
         }
 
-        var response = new ProfileResponse
+        var response = new UserResponse
         {
             Id = user.Id,
             FirstName = user.FirstName,

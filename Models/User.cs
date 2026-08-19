@@ -23,4 +23,6 @@ public sealed class User
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; }
+    public string? PasswordResetTokenHash { get; set; }
+    public DateTimeOffset? PasswordResetTokenExpiresAt { get; set; }
 }

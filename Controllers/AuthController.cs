@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserAuthApi.DTOs.Auth;
 using UserAuthApi.Services;
+using NBEProject1.DTOs.Auth;
 
 namespace UserAuthApi.Controllers;
 
@@ -45,5 +46,23 @@ public class AuthController : ControllerBase
         }
 
         return Ok(new { message = "Your email has been verified successfully! You can now log in." });
+    }
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        await _authService.ForgotPasswordAsync(request);
+        return Ok(new { message = "If the email is registered, a password reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var result = await _authService.ResetPasswordAsync(request);
+        if (!result)
+        {
+            return BadRequest(new { message = "Invalid or expired password reset token." });
+        }
+
+        return Ok(new { message = "Password has been reset successfully. You can now log in with your new password." });
     }
 }

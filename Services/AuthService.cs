@@ -3,9 +3,9 @@ using NBEProject1.Services;
 using System.Security.Cryptography;
 using UserAuthApi.DTOs.Auth;
 using UserAuthApi.Models;
+using NBEProject1.DTOs.Auth;
 
 namespace UserAuthApi.Services;
-
 
 public class AuthService
 {
@@ -53,7 +53,7 @@ public class AuthService
 
         await _userRepository.AddAsync(user);
 
-        var confirmationLink = $"https://localhost:7085/api/Auth/verify-email?email={Uri.EscapeDataString(user.Email)}&token={rawToken}";
+        var confirmationLink = $"http://localhost:5152/api/Auth/verify-email?email={Uri.EscapeDataString(user.Email)}&token={rawToken}";
 
         Console.WriteLine("\n=======================================================");
         Console.WriteLine($"VERIFICATION LINK: {confirmationLink}");
@@ -69,7 +69,6 @@ public class AuthService
             Console.WriteLine($"[SMTP Email Error]: {ex.Message}");
         }
 
-        // MAKE SURE THIS RETURN STATEMENT IS AT THE END OUTSIDE OF ANY TRY/IF BLOCKS:
         return new AuthResponse
         {
             Message = "Registration successful. Please check your email to verify your account."
@@ -100,4 +99,78 @@ public class AuthService
         return true;
     }
 
+    public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var normalizedEmail = request.Email.ToUpperInvariant();
+        var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
+
+        // Return true even if user not found to prevent account enumeration
+        if (user == null)
+        {
+            return true;
+        }
+
+        var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        var tokenHash = _passwordHasher.HashToken(rawToken);
+
+        user.PasswordResetTokenHash = tokenHash;
+        user.PasswordResetTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(1);
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        var resetLink = $"http://localhost:5152/api/Auth/reset-password?email={Uri.EscapeDataString(user.Email)}&token={rawToken}";
+
+        Console.WriteLine("\n=======================================================");
+        Console.WriteLine($"PASSWORD RESET LINK: {resetLink}");
+        Console.WriteLine($"RAW RESET TOKEN: {rawToken}");
+        Console.WriteLine("=======================================================\n");
+
+        try
+        {
+            // Assuming you add a SendPasswordResetEmailAsync method to IEmailService. 
+            // If you only have a generic SendEmailAsync, adjust this accordingly.
+            await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SMTP Email Error]: {ex.Message}");
+        }
+
+        return true;
+    }
+
+    public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var normalizedEmail = request.Email.ToUpperInvariant();
+        var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
+
+        if (user == null || string.IsNullOrEmpty(user.PasswordResetTokenHash) || !user.PasswordResetTokenExpiresAt.HasValue)
+        {
+            return false;
+        }
+
+        if (user.PasswordResetTokenExpiresAt.Value < DateTimeOffset.UtcNow)
+        {
+            return false;
+        }
+
+        var incomingHash = _passwordHasher.HashToken(request.Token);
+        if (!string.Equals(user.PasswordResetTokenHash, incomingHash, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        // Hash the new password using your existing password hasher
+        user.PasswordHash = _passwordHasher.HashPassword(request.NewPassword);
+
+        // Invalidate single-use token
+        user.PasswordResetTokenHash = null;
+        user.PasswordResetTokenExpiresAt = null;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        return true;
+    }
 }
