@@ -1,9 +1,11 @@
 ﻿using System;
 using UserAuthApi.Models;
 
-namespace NBEProject1.Services;
+namespace UserAuthApi.Services;
 
 public interface IJwtTokenService
 {
-    (string Token, DateTime ExpiresAt) GenerateToken(User user);
+    (string Token, DateTimeOffset ExpiresAt) GenerateAccessToken(User user);
+    string GenerateRefreshToken();
+    string HashToken(string token);
 }

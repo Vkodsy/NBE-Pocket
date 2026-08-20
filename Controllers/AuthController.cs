@@ -30,6 +30,41 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            var response = await _authService.LoginAsync(request);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("revoke")]
+    public async Task<IActionResult> Revoke([FromBody] RefreshTokenRequest request)
+    {
+        await _authService.RevokeTokenAsync(request.RefreshToken);
+        return Ok(new { message = "Session revoked successfully." });
+    }
+
     [HttpGet("verify-email")]
     public async Task<IActionResult> VerifyEmail([FromQuery] string email, [FromQuery] string token)
     {
@@ -42,11 +77,12 @@ public class AuthController : ControllerBase
 
         if (!isVerified)
         {
-            return BadRequest(new { message = "Invalid or expired confirmation link." });
+            return BadRequest(new { message = "Invalid, expired, or already confirmed verification link." });
         }
 
         return Ok(new { message = "Your email has been verified successfully! You can now log in." });
     }
+
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {

@@ -1,9 +1,13 @@
-﻿using NBEProject1.Repositories;
-using NBEProject1.Services;
+﻿using System;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using NBEProject1.DTOs.Auth;
+using NBEProject1.Repositories;
+using NBEProject1.Services;
+using UserAuthApi.Data;
 using UserAuthApi.DTOs.Auth;
 using UserAuthApi.Models;
-using NBEProject1.DTOs.Auth;
 
 namespace UserAuthApi.Services;
 
@@ -12,15 +16,21 @@ public class AuthService
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly ApplicationDbContext _context;
 
     public AuthService(
         IUserRepository userRepository,
         IEmailService emailService,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IJwtTokenService jwtTokenService,
+        ApplicationDbContext context)
     {
         _userRepository = userRepository;
         _emailService = emailService;
         _passwordHasher = passwordHasher;
+        _jwtTokenService = jwtTokenService;
+        _context = context;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -80,9 +90,15 @@ public class AuthService
         var normalizedEmail = email.ToUpperInvariant();
         var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
 
-        if (user == null) return false;
-        if (user.EmailConfirmed) return true;
-        if (user.EmailConfirmationExpiresAt == null || user.EmailConfirmationExpiresAt < DateTimeOffset.UtcNow) return false;
+        if (user == null || user.EmailConfirmed)
+        {
+            return false;
+        }
+
+        if (user.EmailConfirmationExpiresAt == null || user.EmailConfirmationExpiresAt < DateTimeOffset.UtcNow)
+        {
+            return false;
+        }
 
         var incomingHash = _passwordHasher.HashToken(token);
         if (!string.Equals(user.EmailConfirmationTokenHash, incomingHash, StringComparison.OrdinalIgnoreCase))
@@ -99,12 +115,85 @@ public class AuthService
         return true;
     }
 
+    public async Task<LoginResponse> LoginAsync(LoginRequest request)
+    {
+        var normalizedEmail = request.Email.Trim().ToUpperInvariant();
+        var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
+
+        if (user == null || !_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        {
+            throw new UnauthorizedAccessException("Invalid email or password.");
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            throw new UnauthorizedAccessException("Please verify your email before logging in.");
+        }
+
+        return await GenerateUserSessionAsync(user);
+    }
+
+    public async Task<LoginResponse> RefreshTokenAsync(string rawRefreshToken)
+    {
+        var tokenHash = _jwtTokenService.HashToken(rawRefreshToken);
+
+        var existingToken = await _context.RefreshTokens
+            .Include(r => r.User)
+            .FirstOrDefaultAsync(r => r.TokenHash == tokenHash);
+
+        if (existingToken == null || !existingToken.IsActive)
+        {
+            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+        }
+
+        // Invalidate current refresh token (Rotation)
+        existingToken.RevokedAt = DateTimeOffset.UtcNow;
+
+        return await GenerateUserSessionAsync(existingToken.User);
+    }
+
+    public async Task RevokeTokenAsync(string rawRefreshToken)
+    {
+        var tokenHash = _jwtTokenService.HashToken(rawRefreshToken);
+
+        var existingToken = await _context.RefreshTokens
+            .FirstOrDefaultAsync(r => r.TokenHash == tokenHash);
+
+        if (existingToken != null && existingToken.IsActive)
+        {
+            existingToken.RevokedAt = DateTimeOffset.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private async Task<LoginResponse> GenerateUserSessionAsync(User user)
+    {
+        var (accessToken, accessExpiry) = _jwtTokenService.GenerateAccessToken(user);
+        var rawRefreshToken = _jwtTokenService.GenerateRefreshToken();
+
+        var refreshTokenEntity = new RefreshToken
+        {
+            UserId = user.Id,
+            TokenHash = _jwtTokenService.HashToken(rawRefreshToken),
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(30)
+        };
+
+        _context.RefreshTokens.Add(refreshTokenEntity);
+        await _context.SaveChangesAsync();
+
+        return new LoginResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = rawRefreshToken,
+            AccessTokenExpiresAt = accessExpiry
+        };
+    }
+
     public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequest request)
     {
         var normalizedEmail = request.Email.ToUpperInvariant();
         var user = await _userRepository.GetByNormalizedEmailAsync(normalizedEmail);
 
-        // Return true even if user not found to prevent account enumeration
         if (user == null)
         {
             return true;
