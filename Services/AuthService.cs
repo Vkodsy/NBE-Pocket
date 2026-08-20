@@ -11,12 +11,12 @@ namespace UserAuthApi.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly AppDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
 
     public AuthService(
-        AppDbContext dbContext,
+        ApplicationDbContext dbContext,
         IPasswordHasher<User> passwordHasher,
         IJwtTokenService jwtTokenService)
     {

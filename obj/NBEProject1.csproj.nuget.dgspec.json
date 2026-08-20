@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {}
+    "C:\\Users\\Jojito\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {
+    "C:\\Users\\Jojito\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
+        "projectUniqueName": "C:\\Users\\Jojito\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
         "projectName": "NBEProject1",
-        "projectPath": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
-        "packagesPath": "C:\\Users\\himal\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\himal\\Source\\Repos\\NBE-Pocket\\obj\\",
+        "projectPath": "C:\\Users\\Jojito\\Source\\Repos\\NBE-Pocket\\NBEProject1.csproj",
+        "packagesPath": "C:\\Users\\Jojito\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jojito\\Source\\Repos\\NBE-Pocket\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\himal\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jojito\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -51,6 +51,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.30, )"
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -70,6 +74,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.22.0, )"
             }
           },
           "imports": [
@@ -91,7 +99,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

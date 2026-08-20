@@ -1,6 +1,9 @@
-﻿namespace NBEProject1.Services
+﻿using System;
+using UserAuthApi.Models;
+
+namespace NBEProject1.Services;
+
+public interface IJwtTokenService
 {
-    public class IJwtTokenService
-    {
-    }
+    (string Token, DateTime ExpiresAt) GenerateToken(User user);
 }

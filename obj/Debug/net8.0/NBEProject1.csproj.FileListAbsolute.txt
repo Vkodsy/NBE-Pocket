@@ -157,3 +157,7 @@ C:\Users\Jojito\source\repos\NBEProject1\obj\Debug\net8.0\NBEProject1.pdb
 C:\Users\Jojito\source\repos\NBEProject1\obj\Debug\net8.0\NBEProject1.genruntimeconfig.cache
 C:\Users\Jojito\source\repos\NBEProject1\obj\Debug\net8.0\ref\NBEProject1.dll
 >>>>>>> ed5a4fa0b4050aba70611a526510d678fc41b3bf
+C:\Users\Jojito\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.csproj.AssemblyReference.cache
+C:\Users\Jojito\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.dll
+C:\Users\Jojito\Source\Repos\NBE-Pocket\obj\Debug\net8.0\refint\NBEProject1.dll
+C:\Users\Jojito\Source\Repos\NBE-Pocket\obj\Debug\net8.0\NBEProject1.pdb

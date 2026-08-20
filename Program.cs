@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System;
-using UserAuthApi.Data
+using UserAuthApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +26,7 @@ var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "DefaultConnection is not configured.");
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
