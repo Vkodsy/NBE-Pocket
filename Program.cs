@@ -42,4 +42,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.Ma
+app.MapControllers();
+
+// Run the application
+app.Run();
