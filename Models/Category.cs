@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-﻿namespace NBEProject1.Models
-=======
-﻿
-
 namespace NBEProject1.Models
->>>>>>> origin/AAAAAAAAAAAAAAAAAAAAAAAAAAA-TestingBranch
 {
     public class Category
     {
