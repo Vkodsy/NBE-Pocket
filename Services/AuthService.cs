@@ -9,6 +9,16 @@ namespace UserAuthApi.Services;
 
 public class AuthService
 {
+<<<<<<< HEAD
+    private readonly ApplicationDbContext _dbContext;
+    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
+
+    public AuthService(
+        ApplicationDbContext dbContext,
+        IPasswordHasher<User> passwordHasher,
+        IJwtTokenService jwtTokenService)
+=======
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IPasswordHasher _passwordHasher;
@@ -17,6 +27,7 @@ public class AuthService
         IUserRepository userRepository,
         IEmailService emailService,
         IPasswordHasher passwordHasher)
+>>>>>>> origin/AAAAAAAAAAAAAAAAAAAAAAAAAAA-TestingBranch
     {
         _userRepository = userRepository;
         _emailService = emailService;

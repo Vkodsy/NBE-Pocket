@@ -1,8 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+<<<<<<< HEAD
+using System;
+using UserAuthApi.Data;
+=======
 using NBEProject1.Repositories;
 using NBEProject1.Services;
 using UserAuthApi.Data;
 using UserAuthApi.Services;     // Or NBEProject1.Services
+>>>>>>> origin/AAAAAAAAAAAAAAAAAAAAAAAAAAA-TestingBranch
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +37,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+<<<<<<< HEAD
+// Database
+// -------------------------------------------------
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "DefaultConnection is not configured.");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
+// ------------------------------------------------
+
+=======
+>>>>>>> origin/AAAAAAAAAAAAAAAAAAAAAAAAAAA-TestingBranch
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

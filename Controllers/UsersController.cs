@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using UserAuthApi.Data;
 using NBEProject1.DTOs.Auth;
 
@@ -24,7 +25,6 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetProfile()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
         if (!Guid.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized(new
