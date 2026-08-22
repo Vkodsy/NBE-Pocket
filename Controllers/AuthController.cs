@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using NBEProject1.DTOs.Auth;
 using UserAuthApi.DTOs.Auth;
 using UserAuthApi.Services;
-using NBEProject1.DTOs.Auth;
 
 namespace UserAuthApi.Controllers;
 
@@ -17,6 +18,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
@@ -28,6 +30,42 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpPost("login")]
+    [EnableRateLimiting("StrictAuthPolicy")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            var response = await _authService.LoginAsync(request);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("revoke")]
+    public async Task<IActionResult> Revoke([FromBody] RefreshTokenRequest request)
+    {
+        await _authService.RevokeTokenAsync(request.RefreshToken);
+        return Ok(new { message = "Session revoked successfully." });
     }
 
     [HttpGet("verify-email")]
@@ -42,12 +80,14 @@ public class AuthController : ControllerBase
 
         if (!isVerified)
         {
-            return BadRequest(new { message = "Invalid or expired confirmation link." });
+            return BadRequest(new { message = "Invalid, expired, or already confirmed verification link." });
         }
 
         return Ok(new { message = "Your email has been verified successfully! You can now log in." });
     }
+
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("StrictAuthPolicy")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
         await _authService.ForgotPasswordAsync(request);
@@ -55,6 +95,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("reset-password")]
+    [EnableRateLimiting("StrictAuthPolicy")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         var result = await _authService.ResetPasswordAsync(request);
