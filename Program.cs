@@ -70,7 +70,7 @@ builder.Services.AddRateLimiter(options =>
             }));
 
     // Strict policy for sensitive Auth endpoints: 5 attempts per minute per IP
-    options.AddPolicy("auth", httpContext =>
+    options.AddPolicy("StrictAuthPolicy", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
             factory: _ => new FixedWindowRateLimiterOptions
