@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NBEProject1.Data; // Adjust this to match your DbContext namespace
+using UserAuthApi.Data;// Adjust this to match your DbContext namespace
 using UserAuthApi.Data;
 using UserAuthApi.Models;
 
