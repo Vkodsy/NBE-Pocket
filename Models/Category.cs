@@ -1,9 +1,16 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace NBEProject1.Models
 {
     public class Category
     {
-        public int Id { get; set; }
-        public string CatName { get; set; }
-        public string mccCode { get; set; }
+        public Guid Id { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        public string CatName { get; set; } = string.Empty;
+
+        [MaxLength(10)]
+        public string? MccCode { get; set; }
     }
 }

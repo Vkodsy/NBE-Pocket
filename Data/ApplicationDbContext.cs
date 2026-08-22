@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NBEProject1.Models;
 using UserAuthApi.Models;
 
 namespace UserAuthApi.Data;
@@ -63,6 +64,11 @@ public sealed class ApplicationDbContext(
             entity.Property(x => x.UpdatedAt)
                 .HasColumnType("datetimeoffset(7)")
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+
         });
     }
 }
